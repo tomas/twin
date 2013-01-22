@@ -1,16 +1,25 @@
 var twin = require('./');
 
-twin.alive(function(alive){
+twin.alive(function(alive, running){
   if (!alive) {
     console.log('Not alive');
 
-    return twin.guard().on('message', function(msg){
-      console.log(msg);
+    twin.guard(function(err, hook){
+      if (err) throw(err);
+
+      hook.on('message', function(msg){
+        console.log('MESSAGE: ' + msg);
+      });
+    })
+  } else {
+
+    console.log(running.since);
+    console.log(running.pid);
+
+    twin.send('Something', function(received){
+      console.log(received ? 'OK' : 'Error.');
     });
+
   }
 
-  console.log('Alive!');
-  twin.send('Something', function(received){
-    console.log(received ? 'Received' : 'Not received.');
-  });
 });
